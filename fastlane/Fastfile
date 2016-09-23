@@ -1,0 +1,102 @@
+
+fastlane_version "1.102.0"
+
+default_platform :ios
+
+platform :ios do
+
+  desc "Initialize default app metadata, only do this once"
+  lane :metaDefaults do
+
+    description = ({
+      'en-US' => "Months of the year is the best damn app ever."
+    })
+
+    support_url = ({
+      'en-US' => "https://jonstoked.com/support"
+    })
+
+    keywords = ({
+      'en-US' => "hello kitty my little pony cabbage patch care bear popples"
+    })
+
+    app_review_information = ({
+      first_name: "Jon",
+      last_name: "Stokes",
+      phone_number: "404.770.6781",
+      email_address: "jonsto@gmail.com",
+      demo_user: "",
+      demo_password: "",
+      notes: ""
+    })
+
+    deliver(
+      username: "jonsto@gmail.com",
+      force: true,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      primary_category: "Business",
+      secondary_category: "Games",
+      description: description,
+      price_tier: 0,
+      support_url: support_url,
+      copyright: "#{Time.now.year} Jon Stokes",
+      keywords: keywords,
+      app_review_information: app_review_information,
+      automatic_release: true
+    )
+  end
+
+
+  desc "Take screenshots of your app, and deliver them to iTunes connect"
+  lane :screenshots do
+    snapshot
+    deliver(
+      username: "jonsto@gmail.com",
+      skip_binary_upload: true
+    )
+  end
+
+
+  desc "Submit a new Beta Build to Crashlytics"
+  lane :beta do
+
+    gym # Build your app
+    
+    # Prompt user for release notes
+    notes = prompt(
+      text: "Enter release notes",
+      multi_line_end_keyword: "END"
+    )
+
+    crashlytics(
+      api_token: 'yourApiToken',
+      build_secret: 'yourBuildSecret',
+      notes: notes
+    )
+
+    # Other beta options include pilot, hockey etc
+    # Check out all available actions at https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Actions.md
+
+  end
+
+
+  desc "Deploy a new version to the App Store"
+  lane :release do
+    gym # Build your app
+    deliver(
+      username: "jonsto@gmail.com",
+      force: true,
+      submit_for_review: true
+    )
+  end
+
+
+  desc "When you've tried everything else"
+  lane :giveUp do
+    xcclean
+    clear_derived_data
+    reset_simulators
+  end
+
+end
